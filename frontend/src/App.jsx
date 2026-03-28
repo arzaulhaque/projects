@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getBoards, createBoard } from './services/api';
 import BoardList from './components/BoardList';
 import BoardView from './components/BoardView';
@@ -10,23 +10,21 @@ function App() {
   const [showCreateBoard, setShowCreateBoard] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchBoards();
-  }, []);
-
-  const fetchBoards = async () => {
+  const fetchBoards = useCallback(async () => {
     try {
       const res = await getBoards();
       setBoards(res.data);
-      if (res.data.length > 0 && !selectedBoardId) {
-        setSelectedBoardId(res.data[0].id);
-      }
+      setSelectedBoardId((prev) => (res.data.length > 0 && !prev ? res.data[0].id : prev));
     } catch (err) {
       console.error('Failed to fetch boards', err);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchBoards();
+  }, [fetchBoards]);
 
   const handleCreateBoard = async (data) => {
     const res = await createBoard(data);

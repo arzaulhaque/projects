@@ -10,6 +10,7 @@ export default function KanbanList({
   onDelete,
   onCardCreate,
   onCardClick,
+  // eslint-disable-next-line no-unused-vars
   isDragging = false,
 }) {
   const [isEditingTitle, setIsEditingTitle] = useState(false);

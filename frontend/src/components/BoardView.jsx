@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   DndContext,
   DragOverlay,
@@ -26,6 +26,7 @@ import CardItem from './CardItem';
 import CardDetailModal from './CardDetailModal';
 import SearchBar from './SearchBar';
 
+// eslint-disable-next-line no-unused-vars
 export default function BoardView({ board, onBoardUpdate }) {
   const [lists, setLists] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -40,11 +41,7 @@ export default function BoardView({ board, onBoardUpdate }) {
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
   );
 
-  useEffect(() => {
-    fetchLists();
-  }, [board.id]);
-
-  const fetchLists = async () => {
+  const fetchLists = useCallback(async () => {
     try {
       setLoading(true);
       const res = await getLists(board.id);
@@ -54,7 +51,11 @@ export default function BoardView({ board, onBoardUpdate }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [board.id]);
+
+  useEffect(() => {
+    fetchLists();
+  }, [fetchLists]);
 
   const handleAddList = async (e) => {
     e.preventDefault();
