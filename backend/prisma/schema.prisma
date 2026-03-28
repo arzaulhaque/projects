@@ -1,0 +1,86 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Board {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  color       String   @default("#0079BF")
+  lists       List[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model List {
+  id        Int      @id @default(autoincrement())
+  title     String
+  order     Int      @default(0)
+  boardId   Int
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  cards     Card[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Card {
+  id             Int             @id @default(autoincrement())
+  title          String
+  description    String?
+  order          Int             @default(0)
+  listId         Int
+  list           List            @relation(fields: [listId], references: [id], onDelete: Cascade)
+  dueDate        DateTime?
+  labels         CardLabel[]
+  members        CardMember[]
+  checklistItems ChecklistItem[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model Label {
+  id    Int         @id @default(autoincrement())
+  name  String
+  color String
+  cards CardLabel[]
+}
+
+model Member {
+  id     Int          @id @default(autoincrement())
+  name   String
+  avatar String       @default("#4CAF50")
+  cards  CardMember[]
+}
+
+model CardLabel {
+  cardId  Int
+  labelId Int
+  card    Card  @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  label   Label @relation(fields: [labelId], references: [id], onDelete: Cascade)
+
+  @@id([cardId, labelId])
+}
+
+model CardMember {
+  cardId   Int
+  memberId Int
+  card     Card   @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  member   Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@id([cardId, memberId])
+}
+
+model ChecklistItem {
+  id        Int      @id @default(autoincrement())
+  content   String
+  completed Boolean  @default(false)
+  cardId    Int
+  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+}
